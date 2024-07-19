@@ -86,9 +86,6 @@ func NumberLines(content string, startLine int) string {
 
 func FormatCode(filename string, text string) string {
 	lang := DetermineLanguage(filename)
-	if lang == "" {
-		return text
-	}
 	return fmt.Sprintf("```%s\n%s\n```", lang, text)
 }
 
