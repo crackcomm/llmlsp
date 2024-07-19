@@ -6,7 +6,7 @@
 
 ---@type colab.config
 local config = {
-  cmd = { "/home/pah/ocxmr-repos/colab/bazel-bin/colab/llmlsp/llmlsp_/llmlsp", "--log-file=/tmp/llmlsp.log" },
+  cmd = { "/home/pah/ocxmr-repos/colab/bazel-bin/llmlsp/llmlsp_/llmlsp", "--log-file=/tmp/llmlsp.log" },
 
   on_attach = function(...)
     -- empty
