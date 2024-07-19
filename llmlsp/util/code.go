@@ -83,3 +83,19 @@ func NumberLines(content string, startLine int) string {
 	}
 	return strings.Join(lines, "\n")
 }
+
+func FormatCode(filename string, text string) string {
+	lang := DetermineLanguage(filename)
+	if lang == "" {
+		return text
+	}
+	return fmt.Sprintf("```%s\n%s\n```", lang, text)
+}
+
+func ExtractCode(text string) string {
+	lines := strings.Split(text, "\n")
+	if len(lines) < 3 {
+		return ""
+	}
+	return strings.Join(lines[1:len(lines)-1], "\n")
+}

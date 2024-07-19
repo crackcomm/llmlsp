@@ -3,24 +3,24 @@ package lsp
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
-	"sync"
 
 	"github.com/crackcomm/llmlsp/llmlsp/llm"
 	"github.com/crackcomm/llmlsp/llmlsp/lsp/router"
 	"github.com/crackcomm/llmlsp/llmlsp/lsp/types"
+	"github.com/crackcomm/llmlsp/llmlsp/util"
 	"github.com/sourcegraph/go-lsp"
 	"github.com/sourcegraph/jsonrpc2"
 )
 
 type Server struct {
 	Debug       bool
-	FileMap     types.MemoryFileMap
 	LLMProvider llm.Provider
 
-	mu          sync.Mutex
+	files       *files
 	router      *router.Router
 	initialized bool
 }
@@ -28,8 +28,8 @@ type Server struct {
 // NewServer creates a new server instance.
 func NewServer() *Server {
 	s := &Server{
-		FileMap:     make(types.MemoryFileMap),
 		LLMProvider: llm.NewOpenAI(&llm.Options{}),
+		files:       newFiles(),
 		router:      router.NewRouter(),
 	}
 
@@ -89,18 +89,12 @@ func (s *Server) initialize(ctx context.Context, conn *jsonrpc2.Conn, _ *jsonrpc
 }
 
 func (s *Server) textDocumentDidChange(_ context.Context, _ *jsonrpc2.Conn, _ *jsonrpc2.Request, params lsp.DidChangeTextDocumentParams) (any, error) {
-	s.mu.Lock()
-	s.FileMap[params.TextDocument.URI] = params.ContentChanges[0].Text
-	s.mu.Unlock()
-
+	s.files.set(params.TextDocument.URI, params.ContentChanges[0].Text)
 	return nil, nil
 }
 
 func (s *Server) textDocumentDidOpen(_ context.Context, _ *jsonrpc2.Conn, _ *jsonrpc2.Request, params lsp.DidOpenTextDocumentParams) (any, error) {
-	s.mu.Lock()
-	s.FileMap[params.TextDocument.URI] = params.TextDocument.Text
-	s.mu.Unlock()
-
+	s.files.set(params.TextDocument.URI, params.TextDocument.Text)
 	return nil, nil
 }
 
@@ -109,6 +103,46 @@ func (s *Server) workspaceExecuteCommand(ctx context.Context, conn *jsonrpc2.Con
 	defer done()
 
 	switch params.Command {
+	case "docstring":
+		var cmdParams lsp.Location
+		if err := json.Unmarshal(params.Arguments[0], &cmdParams); err != nil {
+			return nil, err
+		}
+
+		// get content of the location
+		code, ok := s.files.getLocationCode(cmdParams)
+		if !ok {
+			return nil, errors.New("failed to get location text")
+		}
+
+		// TODO: prompting
+		messages := []llm.Message{
+			{
+				Speaker: llm.System,
+				Text: "Generate a concise docstring for the following code snippet." +
+					" Include the entire function with the new docstring." +
+					" Reply only with the code, nothing else." +
+					" Enclose it in a markdown style block.\n\n",
+			},
+			{
+				Speaker: llm.User,
+				Text:    code,
+			},
+		}
+
+		completion, err := llm.GetCompletion(ctx, s.LLMProvider, llm.StreamCompletionParams{
+			Messages: messages,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		completion = util.ExtractCode(completion)
+		editResponse := createEdit(cmdParams, completion)
+
+		var res json.RawMessage
+		return nil, conn.Call(ctx, "workspace/applyEdit", editResponse, &res)
+
 	case "testCommand":
 		var cmdParams lsp.Location
 		if err := json.Unmarshal(params.Arguments[0], &cmdParams); err != nil {
@@ -141,7 +175,7 @@ func (s *Server) getCodeActions(doc lsp.DocumentURI, selection lsp.Range) []lsp.
 		{
 			Title:     "Generate docstring",
 			Command:   "docstring",
-			Arguments: []interface{}{doc, selection.Start.Line, selection.End.Line},
+			Arguments: []interface{}{lsp.Location{URI: doc, Range: selection}},
 		},
 		{
 			Title:     "LLMLSP: Remember this",
