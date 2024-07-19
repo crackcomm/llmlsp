@@ -9,7 +9,27 @@ import (
 	"github.com/sourcegraph/jsonrpc2"
 )
 
-func createProgress(ctx context.Context, conn *jsonrpc2.Conn) func() {
+type progressMessages struct {
+	Title        string
+	BeginMessage string
+	EndMessage   string
+}
+
+var (
+	progressCodeAction = &progressMessages{
+		Title:        "Code actions",
+		BeginMessage: "Computing code actions...",
+		EndMessage:   "Code actions computed",
+	}
+
+	progressCompletion = &progressMessages{
+		Title:        "Completion",
+		BeginMessage: "Computing completions...",
+		EndMessage:   "Completions computed",
+	}
+)
+
+func createProgress(ctx context.Context, conn *jsonrpc2.Conn, msg *progressMessages) func() {
 	uuid := uuid.New().String()
 	var res any
 	conn.Call(ctx, "window/workDoneProgress/create", types.WorkDoneProgressCreateParams{
@@ -18,16 +38,16 @@ func createProgress(ctx context.Context, conn *jsonrpc2.Conn) func() {
 	conn.Notify(ctx, "$/progress", types.ProgressParams[types.WorkDoneProgressBegin]{
 		Token: uuid,
 		Value: types.WorkDoneProgressBegin{
-			Title:   "Code actions",
+			Title:   msg.Title,
 			Kind:    "begin",
-			Message: "Computing code actions...",
+			Message: msg.BeginMessage,
 		},
 	})
 	done := func() {
 		conn.Notify(ctx, "$/progress", types.ProgressParams[types.WorkDoneProgressEnd]{
 			Token: uuid,
 			Value: types.WorkDoneProgressEnd{
-				Message: "Code actions computed",
+				Message: msg.EndMessage,
 				Kind:    "end",
 			},
 		})

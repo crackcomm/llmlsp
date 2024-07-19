@@ -98,7 +98,7 @@ func (s *Server) textDocumentDidOpen(_ context.Context, _ *jsonrpc2.Conn, _ *jso
 }
 
 func (s *Server) workspaceExecuteCommand(ctx context.Context, conn *jsonrpc2.Conn, req *jsonrpc2.Request, params types.ExecuteCommandParams) (any, error) {
-	done := createProgress(ctx, conn)
+	done := createProgress(ctx, conn, progressCodeAction)
 	defer done()
 
 	switch params.Command {
@@ -237,7 +237,7 @@ func (s *Server) textDocumentCodeAction(_ context.Context, conn *jsonrpc2.Conn, 
 }
 
 func (s *Server) textDocumentCompletion(ctx context.Context, conn *jsonrpc2.Conn, _ *jsonrpc2.Request, params lsp.CompletionParams) (any, error) {
-	done := createProgress(ctx, conn)
+	done := createProgress(ctx, conn, progressCompletion)
 	defer done()
 
 	textEdit := &lsp.TextEdit{
