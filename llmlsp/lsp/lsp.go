@@ -75,7 +75,6 @@ func (s *Server) initialize(ctx context.Context, conn *jsonrpc2.Conn, _ *jsonrpc
 			"llmlsp.forget",
 			"llmlsp.chat/history",
 			"llmlsp.chat/message",
-			"testCommand",
 		},
 	}
 	return lsp.InitializeResult{
@@ -143,17 +142,6 @@ func (s *Server) workspaceExecuteCommand(ctx context.Context, conn *jsonrpc2.Con
 		var res json.RawMessage
 		return nil, conn.Call(ctx, "workspace/applyEdit", editResponse, &res)
 
-	case "testCommand":
-		var cmdParams lsp.Location
-		if err := json.Unmarshal(params.Arguments[0], &cmdParams); err != nil {
-			return nil, err
-		}
-
-		editResponse := createEdit(cmdParams, "this\nis\na\nmultiline\nchange\n")
-
-		var res json.RawMessage
-		return nil, conn.Call(ctx, "workspace/applyEdit", editResponse, &res)
-
 	case "diagnosticTest":
 		var cmdParams lsp.Location
 		if err := json.Unmarshal(params.Arguments[0], &cmdParams); err != nil {
@@ -181,11 +169,6 @@ func (s *Server) getCodeActions(doc lsp.DocumentURI, selection lsp.Range) []lsp.
 			Title:     "LLMLSP: Remember this",
 			Command:   "llmlsp.remember",
 			Arguments: []interface{}{doc, selection.Start.Line, selection.End.Line},
-		},
-		{
-			Title:     "LLMSP: test command",
-			Command:   "testCommand",
-			Arguments: []interface{}{lsp.Location{URI: doc, Range: selection}},
 		},
 		{
 			Title:     "LLMSP: diagnostic test",
