@@ -1,4 +1,4 @@
-load("//third_party:http_archive.bzl", http_archive = "cx_http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def repositories():
     http_archive(

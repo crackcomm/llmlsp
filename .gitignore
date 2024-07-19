@@ -126,3 +126,4 @@ concourse-config.yml
 .bazelrc.user
 
 usr/
+nvim/.luarc.json

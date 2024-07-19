@@ -10,9 +10,9 @@ llmlsp_workspace3()
 
 # gazelle:repo bazel_gazelle
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-load("//third_party:go_deps.bzl", "go_dependencies")
+load("//:go_deps.bzl", "go_dependencies")
 
-# gazelle:repository_macro third_party/go_deps.bzl%go_dependencies
+# gazelle:repository_macro go_deps.bzl%go_dependencies
 go_dependencies()
 
 gazelle_dependencies()
