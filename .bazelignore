@@ -1,0 +1,13 @@
+.jj
+.git
+.ruff_cache
+
+node_modules/
+
+antora/node_modules
+
+colab/web/node_modules
+colab/web/src/node_modules
+colab/web/tools/node_modules
+
+usr/
