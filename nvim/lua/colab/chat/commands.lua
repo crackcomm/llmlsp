@@ -8,8 +8,6 @@ local util = require("colab.vendored.sg.utils")
 
 local CodyBase = require("colab.vendored.cody.layout.base")
 local CodySplit = require("colab.vendored.cody.layout.split")
--- local CodyFloat = require("colab.vendored.cody.layout.float")
--- local CodyHover = require("colab.vendored.cody.layout.hover")
 local FloatPrompt = require("colab.chat.layout.float_prompt")
 local Message = require("colab.vendored.cody.message")
 local Speaker = require("colab.vendored.cody.speaker")
@@ -44,14 +42,12 @@ commands.ask_range = function(bufnr, start_row, end_row, message)
   layout:request_user_message(contents)
 end
 
---- Ask LLM about the selected code
+--- Ask LLM to perform a task on the selected code
 ---@param bufnr number
 ---@param start_line number
 ---@param end_line number
 commands.float = function(bufnr, start_line, end_line)
   local callback = function(text)
-    log.debug("Replacing text", text)
-
     vim.api.nvim_buf_set_lines(bufnr, start_line, end_line, false, text)
   end
 

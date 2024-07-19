@@ -29,8 +29,8 @@ vim.lsp.handlers["chat/updateMessageInProgress"] = function(_, noti, ctx)
   end
 end
 
-_SG_CODY_RPC_MESSAGES = _SG_CODY_RPC_MESSAGES or {}
-M.messages = _SG_CODY_RPC_MESSAGES
+_LLMLSP_RPC_MESSAGES = _LLMLSP_RPC_MESSAGES or {}
+M.messages = _LLMLSP_RPC_MESSAGES
 
 M.execute = {}
 
