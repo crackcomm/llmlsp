@@ -1,13 +1,8 @@
 Format-Specification: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Name: llmlsp
+License: Apache-2.0
 Source: https://github.com/crackcomm/llmlsp
 Maintainer: Łukasz Kurowski <crackcomm@gmail.com>
-
-Files: third_party/http_archive.bzl
-Source: https://github.com/tensorflow/tensorflow/tree/f0b04c0699ac573c30695cc0f50e96d149be02ab/third_party/repo.bzl
-Copyright: 2023, The TensorFlow Authors
-           2023, Łukasz Kurowski
-License: Apache-2.0
 
 Files: nvim/lua/colab/log.lua
        nvim/lua/colab/vendored/{sg,cody}
