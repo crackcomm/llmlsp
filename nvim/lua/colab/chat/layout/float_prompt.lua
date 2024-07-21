@@ -84,7 +84,11 @@ function FloatPrompt:set_keymaps()
     self:hide()
   end)
 
-  keymaps.map(bufnr, "n", "<CR>", "[colab] submit instruction", function()
+  keymaps.map(bufnr, "n", "<CR>", "[colab] submit message", function()
+    self:on_submit()
+  end)
+
+  keymaps.map(bufnr, "i", "<C-CR>", "[colab] submit message", function()
     self:on_submit()
   end)
 
