@@ -19,7 +19,7 @@ func main() {
 	kong.Parse(&cli)
 
 	if cli.LogFile != "" {
-		f, err := os.OpenFile("/tmp/llmsp.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		f, err := os.OpenFile(cli.LogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			log.Fatalf("Opening log file err: %v", err)
 		}
