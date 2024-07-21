@@ -79,6 +79,7 @@ type ExecuteCommandParams struct {
 }
 
 type ChatPromptParams struct {
+	Id             string `json:"id"`
 	MessageId      string `json:"messageId"`
 	HumanChatInput string `json:"humanChatInput"`
 }

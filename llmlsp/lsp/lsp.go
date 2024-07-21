@@ -275,6 +275,10 @@ func (s *Server) workspaceDidChangeConfiguration(ctx context.Context, conn *json
 
 func (s *Server) chatExecMessage(ctx context.Context, conn *jsonrpc2.Conn, _ *jsonrpc2.Request, params types.ChatPromptParams) (any, error) {
 	log.Printf("chatExecMessage Params: %v", params.HumanChatInput)
+	if params.Id == "code-question" {
+		done := createProgress(ctx, conn, progressCodeAction)
+		defer done()
+	}
 
 	messages, err := s.LLMProvider.StreamCompletion(ctx, llm.StreamCompletionParams{
 		Messages: []llm.Message{{
