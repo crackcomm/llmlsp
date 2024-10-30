@@ -46,3 +46,16 @@ func requiresInitialized[T any](s *Server, handler LSPHandler[T]) LSPHandler[T] 
 		return handler(ctx, conn, req, params)
 	}
 }
+
+// ExecuteCommandHandler is a type for handling LSP ExecuteCommand requests.
+type ExecuteCommandHandler func(ctx context.Context, conn *jsonrpc2.Conn, params *json.RawMessage) (any, error)
+
+func executeCommandHandler[T any](fn func(ctx context.Context, conn *jsonrpc2.Conn, params T) (any, error)) ExecuteCommandHandler {
+	return func(ctx context.Context, conn *jsonrpc2.Conn, params *json.RawMessage) (any, error) {
+		var p T
+		if err := json.Unmarshal(*params, &p); err != nil {
+			return nil, err
+		}
+		return fn(ctx, conn, p)
+	}
+}

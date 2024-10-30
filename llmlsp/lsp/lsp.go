@@ -3,7 +3,6 @@ package lsp
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -11,7 +10,6 @@ import (
 	"github.com/crackcomm/llmlsp/llmlsp/llm"
 	"github.com/crackcomm/llmlsp/llmlsp/lsp/router"
 	"github.com/crackcomm/llmlsp/llmlsp/lsp/types"
-	"github.com/crackcomm/llmlsp/llmlsp/util"
 	"github.com/crackcomm/llmlsp/llmlsp/workspace"
 	"github.com/sourcegraph/go-lsp"
 	"github.com/sourcegraph/jsonrpc2"
@@ -69,8 +67,8 @@ func (s *Server) initialize(ctx context.Context, conn *jsonrpc2.Conn, _ *jsonrpc
 			"todos",
 			"suggest",
 			"answer",
-			"docstring",
 			"llmlsp",
+			"llmlsp.docstring",
 			"llmlsp.explain",
 			"llmlsp.explainErrors",
 			"llmlsp.remember",
@@ -103,53 +101,16 @@ func (s *Server) workspaceExecuteCommand(ctx context.Context, conn *jsonrpc2.Con
 	done := createProgress(ctx, conn, progressCodeAction)
 	defer done()
 
+	var cmdParams *json.RawMessage
+	if len(params.Arguments) > 0 {
+		cmdParams = &params.Arguments[0]
+	}
+
 	switch params.Command {
-	case "docstring":
-		var cmdParams lsp.Location
-		if err := json.Unmarshal(params.Arguments[0], &cmdParams); err != nil {
-			return nil, err
-		}
-
-		// get content of the location
-		code, ok := s.workspace.Files.LocationCode(params)
-		if !ok {
-			return nil, errors.New("failed to get location text")
-		}
-
-		// TODO: prompting
-		messages := []llm.Message{
-			{
-				Speaker: llm.System,
-				Text: "Generate a concise docstring for the following code snippet." +
-					" Include the entire function with the new docstring." +
-					" Reply only with the code, nothing else." +
-					" Enclose it in a markdown style block.\n\n",
-			},
-			{
-				Speaker: llm.User,
-				Text:    code,
-			},
-		}
-
-		completion, err := llm.GetCompletion(ctx, s.LLMProvider, llm.StreamCompletionParams{
-			Messages: messages,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		completion = util.ExtractCode(completion)
-		editResponse := createEdit(cmdParams, completion)
-
-		var res json.RawMessage
-		return nil, conn.Call(ctx, "workspace/applyEdit", editResponse, &res)
-
+	case "llmlsp.docstring":
+		return executeCommandHandler(s.docstringAction)(ctx, conn, cmdParams)
 	case "diagnosticTest":
-		var cmdParams lsp.Location
-		if err := json.Unmarshal(params.Arguments[0], &cmdParams); err != nil {
-			return nil, err
-		}
-		return nil, s.sendDiagnostics(ctx, conn, cmdParams)
+		return executeCommandHandler(s.diagnosticTestAction)(ctx, conn, cmdParams)
 	}
 
 	return nil, fmt.Errorf("unknown command: %s", params.Command)
@@ -164,7 +125,7 @@ func (s *Server) getCodeActions(doc lsp.DocumentURI, selection lsp.Range) []lsp.
 		},
 		{
 			Title:     "Generate docstring",
-			Command:   "docstring",
+			Command:   "llmlsp.docstring",
 			Arguments: []interface{}{lsp.Location{URI: doc, Range: selection}},
 		},
 		{
