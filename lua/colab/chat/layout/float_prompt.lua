@@ -1,4 +1,4 @@
-local shared = require("colab.utils.window")
+local window = require("colab.utils.window")
 local keymaps = require("colab.utils.keymaps")
 local CodyPrompt = require("colab.chat.cody_prompt")
 
@@ -30,12 +30,12 @@ function FloatPrompt.init(opts)
   opts.col = cursor[2] + line_number_width
 
   opts.open = function(prompt)
-    prompt.bufnr, prompt.win = shared.create(prompt.bufnr, prompt.win, {
+    prompt.bufnr, prompt.win = window.create(prompt.bufnr, prompt.win, {
       relative = "win",
-      width = shared.calculate_width(opts.width),
-      height = shared.calculate_height(opts.height),
-      row = shared.calculate_row(opts.row),
-      col = shared.calculate_col(opts.col),
+      width = window.calculate_width(opts.width),
+      height = window.calculate_height(opts.height),
+      row = window.calculate_row(opts.row),
+      col = window.calculate_col(opts.col),
       style = "minimal",
       border = "rounded",
       title = " Instruction ",
