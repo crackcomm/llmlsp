@@ -17,6 +17,7 @@ FloatPrompt.__index = FloatPrompt
 function FloatPrompt.init(opts)
   opts = opts or {}
 
+  opts.name = "Instruction Prompt"
   opts.width = opts.width or 0.35
   opts.height = 15
 

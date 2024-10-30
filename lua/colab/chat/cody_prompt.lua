@@ -3,7 +3,7 @@ local utils = require("colab.utils")
 
 ---@class CodyPromptOpts
 ---@field open function(self): Create a buf, win pair
----@field split string?
+---@field name string?
 ---@field height number|string
 ---@field width number|string
 ---@field row number|string
@@ -14,6 +14,7 @@ local utils = require("colab.utils")
 ---@field filetype string: The filetype to assign to the prompt buffer
 
 ---@class CodyPrompt
+---@field name string
 ---@field open function(self): Open the window and bufnr, mutating self to store new win and bufnr
 ---@field opts CodyPromptOpts
 ---@field bufnr number
@@ -26,6 +27,7 @@ CodyPrompt.__index = CodyPrompt
 ---@return CodyPrompt
 function CodyPrompt.init(opts)
   return setmetatable({
+    name = opts.name or "Chat Prompt",
     open = assert(opts.open, "Must have an `open` function for CodyPrompt"),
     opts = opts,
     bufnr = -1,
@@ -65,9 +67,8 @@ end
 function CodyPrompt:show()
   self:open()
   vim.api.nvim_set_current_win(self.win)
-  vim.api.nvim_buf_set_name(self.bufnr, "Chat Prompt")
-
-  vim.bo[self.bufnr].filetype = self.opts.filetype or "markdown.cody_prompt"
+  vim.api.nvim_buf_set_name(self.bufnr, self.name)
+  vim.bo[self.bufnr].filetype = self.opts.filetype or "markdown"
 end
 
 function CodyPrompt:delete()
