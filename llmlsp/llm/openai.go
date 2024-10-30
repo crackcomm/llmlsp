@@ -56,6 +56,9 @@ func (p *OpenAIProvider) StreamCompletion(ctx context.Context, params StreamComp
 		var content string
 		for {
 			msg, err := resp.Recv()
+			if err == io.EOF {
+				break
+			}
 			if err != nil {
 				panic(err) // TODO
 			}
