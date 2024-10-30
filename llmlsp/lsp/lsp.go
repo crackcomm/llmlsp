@@ -12,6 +12,7 @@ import (
 	"github.com/crackcomm/llmlsp/llmlsp/lsp/router"
 	"github.com/crackcomm/llmlsp/llmlsp/lsp/types"
 	"github.com/crackcomm/llmlsp/llmlsp/util"
+	"github.com/crackcomm/llmlsp/llmlsp/workspace"
 	"github.com/sourcegraph/go-lsp"
 	"github.com/sourcegraph/jsonrpc2"
 )
@@ -20,16 +21,16 @@ type Server struct {
 	Debug       bool
 	LLMProvider llm.Provider
 
-	files       *files
 	router      *router.Router
 	initialized bool
+	workspace   *workspace.Workspace
 }
 
 // NewServer creates a new server instance.
 func NewServer() *Server {
 	s := &Server{
 		LLMProvider: llm.NewOpenAI(&llm.Options{}),
-		files:       newFiles(),
+		workspace:   workspace.New(),
 		router:      router.NewRouter(),
 	}
 
@@ -54,6 +55,7 @@ func (s *Server) Handle(ctx context.Context, conn *jsonrpc2.Conn, req *jsonrpc2.
 
 func (s *Server) initialize(ctx context.Context, conn *jsonrpc2.Conn, _ *jsonrpc2.Request, params lsp.InitializeParams) (any, error) {
 	s.initialized = true
+	s.workspace.RootPath = params.RootPath
 
 	opts := lsp.TextDocumentSyncOptionsOrKind{
 		Options: &lsp.TextDocumentSyncOptions{
@@ -88,12 +90,12 @@ func (s *Server) initialize(ctx context.Context, conn *jsonrpc2.Conn, _ *jsonrpc
 }
 
 func (s *Server) textDocumentDidChange(_ context.Context, _ *jsonrpc2.Conn, _ *jsonrpc2.Request, params lsp.DidChangeTextDocumentParams) (any, error) {
-	s.files.set(params.TextDocument.URI, params.ContentChanges[0].Text)
+	s.workspace.Files.SetText(params.TextDocument.URI, params.ContentChanges[0].Text)
 	return nil, nil
 }
 
 func (s *Server) textDocumentDidOpen(_ context.Context, _ *jsonrpc2.Conn, _ *jsonrpc2.Request, params lsp.DidOpenTextDocumentParams) (any, error) {
-	s.files.set(params.TextDocument.URI, params.TextDocument.Text)
+	s.workspace.Files.SetText(params.TextDocument.URI, params.TextDocument.Text)
 	return nil, nil
 }
 
@@ -109,7 +111,7 @@ func (s *Server) workspaceExecuteCommand(ctx context.Context, conn *jsonrpc2.Con
 		}
 
 		// get content of the location
-		code, ok := s.files.getLocationCode(cmdParams)
+		code, ok := s.workspace.Files.LocationCode(params)
 		if !ok {
 			return nil, errors.New("failed to get location text")
 		}
