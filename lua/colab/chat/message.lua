@@ -1,4 +1,4 @@
-local Speaker = require("colab.vendored.cody.speaker")
+local Speaker = require("colab.chat.types").Speaker
 
 ---@class CodyMessage
 ---@field speaker CodySpeaker
@@ -23,7 +23,6 @@ function Message.init(speaker, msg, contextFiles, opts)
     msg = msg,
     contextFiles = contextFiles,
     hidden = opts.hidden,
-
     completed = speaker ~= Speaker.assistant,
   }, Message)
 end

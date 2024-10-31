@@ -1,9 +1,9 @@
 local log = require("colab.log")
 
-local Speaker = require("colab.vendored.cody.speaker")
-local Message = require("colab.vendored.cody.message")
-local Typewriter = require("colab.vendored.cody.typewriter")
-local Mark = require("colab.vendored.sg.mark")
+local Speaker = require("colab.chat.types").Speaker
+local Message = require("colab.chat.message")
+local Typewriter = require("colab.utils.typewriter")
+local Mark = require("colab.utils.typewriter.mark")
 
 local state_history = {}
 
@@ -16,10 +16,6 @@ end
 ---@field message CodyMessage
 ---@field mark CodyMarkWrapper
 ---@field typewriter CodyTypewriter?
-
----@class CodyStateOpts
----@field name string?
----@field code_only boolean?
 
 ---@class CodyState
 ---@field name string
@@ -100,7 +96,7 @@ end
 --- Get a new completion, based on the state
 ---@param bufnr number
 ---@param win number
----@param callback ColabChatCallbackHandler
+---@param callback ChatCallbackHandler
 ---@return number: message ID where completion will happen
 function State:complete(bufnr, win, callback)
   set_last_state(self)
@@ -116,9 +112,9 @@ function State:complete(bufnr, win, callback)
 
   -- Execute chat question. Will be completed async
   if self.code_only then
-    require("colab.chat.rpc").execute.code_question(snippet, callback(id))
+    require("colab.client").execute.code_question(snippet, callback(id))
   else
-    require("colab.chat.rpc").execute.chat_question(snippet, callback(id))
+    require("colab.client").execute.chat_question(snippet, callback(id))
   end
 
   return id

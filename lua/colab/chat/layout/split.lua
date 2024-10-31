@@ -1,13 +1,13 @@
 local log = require("colab.log")
 
-local Message = require("colab.vendored.cody.message")
-local Speaker = require("colab.vendored.cody.speaker")
+local Message = require("colab.chat.message")
+local Speaker = require("colab.chat.types").Speaker
 
-local keymaps = require("colab.vendored.sg.keymaps")
-local shared = require("colab.vendored.cody.shared")
-local util = require("colab.vendored.sg.utils")
+local keymaps = require("colab.utils.keymaps")
+local shared = require("colab.utils.window")
+local util = require("colab.utils")
 
-local Base = require("colab.vendored.cody.layout.base")
+local Base = require("colab.chat.layout.base")
 
 ---@class CodyLayoutSplitOpts : CodyBaseLayoutOpts
 ---@field width number?

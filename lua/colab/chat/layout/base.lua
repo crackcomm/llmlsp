@@ -1,9 +1,9 @@
-local CodyPrompt = require("colab.vendored.cody.cody_prompt")
-local CodyHistory = require("colab.vendored.cody.cody_history")
-local Message = require("colab.vendored.cody.message")
-local Speaker = require("colab.vendored.cody.speaker")
-local State = require("colab.vendored.cody.state")
-local util = require("colab.vendored.sg.utils")
+local CodyPrompt = require("colab.chat.cody_prompt")
+local CodyHistory = require("colab.chat.cody_history")
+local Message = require("colab.chat.message")
+local Speaker = require("colab.chat.types").Speaker
+local State = require("colab.chat.state")
+local util = require("colab.utils")
 
 ---@class CodyBaseLayoutOpts
 ---@field name string?
@@ -130,7 +130,7 @@ function Base:create()
 
   -- Reset the chat
   if self.opts.reset then
-    require("colab.chat.rpc").transcript.reset()
+    require("colab.client").transcript.reset()
   end
 end
 

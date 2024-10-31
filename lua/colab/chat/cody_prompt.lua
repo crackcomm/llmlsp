@@ -1,5 +1,5 @@
-local shared = require("colab.vendored.cody.shared")
-local utils = require("colab.vendored.sg.utils")
+local shared = require("colab.utils.window")
+local utils = require("colab.utils")
 
 ---@class CodyPromptOpts
 ---@field open function(self): Create a buf, win pair

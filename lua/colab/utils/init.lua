@@ -1,5 +1,4 @@
--- Credit: copied from sg.nvim
--- TODO: move to lua/colab
+-- Credit: some functions were copied from sg.nvim
 local utils = {}
 
 utils.once = function(f)
@@ -20,6 +19,26 @@ end
 ---@return table
 utils.format_code = function(bufnr, code)
   return vim.tbl_flatten({ string.format("```%s", vim.bo[bufnr].filetype), code, "```" })
+end
+
+utils.indent_code = function(lines, indent)
+  local indented = {}
+  for _, line in ipairs(lines) do
+    table.insert(indented, string.rep(" ", indent) .. line)
+  end
+  return indented
+end
+
+utils.find_indentation = function(lines)
+  -- find indentation of first non-empty line
+  local indent = 0
+  for _, line in ipairs(lines) do
+    if line:match("%S") then
+      indent = line:match("^%s*"):len()
+      break
+    end
+  end
+  return indent
 end
 
 utils.execute_keystrokes = function(keys)
@@ -50,10 +69,15 @@ end
 utils.get_selection = function()
   utils.execute_keystrokes("<ESC>")
 
-  local start_line = vim.fn.getpos("'<")[2] - 1
-  local end_line = vim.fn.getpos("'>")[2]
+  local start_pos = vim.fn.getpos("'<")
+  local end_pos = vim.fn.getpos("'>")
 
-  return { start_line = start_line, end_line = end_line }
+  local start_line = start_pos[2] - 1 -- Convert to 0-based indexing for lines
+  local start_char = start_pos[3] - 1 -- Convert to 0-based indexing for characters
+  local end_line = end_pos[2] - 1 -- Convert to 0-based indexing
+  local end_char = end_pos[3] -- End character is 1-based
+
+  return { start_line = start_line, start_char = start_char, end_line = end_line, end_char = end_char }
 end
 
 return utils

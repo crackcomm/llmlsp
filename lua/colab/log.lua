@@ -13,7 +13,7 @@ end
 
 local logger = require("plenary.log").new({
   plugin = "colab",
-  level = "trace",
+  level = "debug",
   use_console = false,
   info_level = 3,
 })

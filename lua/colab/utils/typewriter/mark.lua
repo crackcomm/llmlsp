@@ -1,3 +1,5 @@
+-- Source: https://github.com/sourcegraph/sg.nvim/blob/817f1f36e4c43f82e8e1cdfa4cf978dffa037255/lua/sg/mark.lua
+
 ---@class CodyNvimPosition
 ---@field row number: 0-indexed row
 ---@field col number: 0-indexed column

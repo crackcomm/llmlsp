@@ -1,5 +1,5 @@
 local chat_commands = require("colab.chat.commands")
-local utils = require("colab.vendored.sg.utils")
+local utils = require("colab.utils")
 
 local M = {}
 

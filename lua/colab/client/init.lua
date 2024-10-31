@@ -1,11 +1,30 @@
 -- Credit: based on sg.nvim cody rpc
 
-local client = require("colab.client")
-local utils = require("colab.vendored.sg.utils")
+local log = require("colab.log")
+local utils = require("colab.utils")
+local Speaker = require("colab.chat.types").Speaker
 
 local M = {}
 
----@type table<string, ColabMessageHandler?>
+M.get_client = function()
+  for _, client in ipairs(vim.lsp.get_active_clients()) do
+    if client.name == "llmlsp" then
+      return client
+    end
+  end
+  return nil
+end
+
+M.request = function(...)
+  local client = M.get_client()
+  if client == nil then
+    log.error("LLM LSP Client not registered")
+    return
+  end
+  client.rpc.request(...)
+end
+
+---@type table<string, ChatMessageHandler?>
 M.message_callbacks = {}
 
 vim.lsp.handlers["chat/updateMessageInProgress"] = function(_, noti, ctx)
@@ -36,45 +55,48 @@ M.execute = {}
 
 --- Execute a chat question and get a streaming response
 ---@param message string
----@param callback ColabMessageHandler
+---@param callback ChatMessageHandler
 ---@param msg_type string
 ---@return table | nil
 ---@return table | nil
 M.execute.chat = function(message, callback, msg_type)
-  if client.get_client() == nil then
+  if M.get_client() == nil then
     callback({
-      speaker = "cody",
+      speaker = Speaker.assistant,
       text = "LLM LSP is not connected",
     })
     return
   end
 
   local message_id = utils.uuid()
-  M.message_callbacks[message_id] = callback
+  M.message_callbacks[message_id] = function(...)
+    callback(...)
+    log.trace("Message callback", ...)
+  end
 
-  return client.request(
+  return M.request(
     "chat/execMessage",
     { id = msg_type, humanChatInput = message, messageId = message_id },
     function(err, _)
       if err ~= nil then
         -- Notify user of error message
         callback({
-          speaker = "cody",
+          speaker = Speaker.assistant,
           text = err.message,
           messageId = message_id,
         })
-
-        -- Mark callback as "completed"
-        ---@diagnostic disable-next-line: param-type-mismatch
-        callback(nil)
       end
+
+      -- Mark callback as "completed"
+      ---@diagnostic disable-next-line: param-type-mismatch
+      callback(nil)
     end
   )
 end
 
 --- Execute a chat question and get a streaming response
 ---@param message string
----@param callback ColabMessageHandler
+---@param callback ChatMessageHandler
 ---@return table | nil
 ---@return table | nil
 M.execute.chat_question = function(message, callback)
@@ -84,7 +106,7 @@ end
 --- Execute a code question and get a streaming response
 --- Returns only code (hopefully)
 ---@param message string
----@param callback ColabMessageHandler
+---@param callback ChatMessageHandler
 ---@return table | nil
 M.execute.code_question = function(message, callback)
   M.execute.chat(message, callback, "code-question")

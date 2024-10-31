@@ -22,7 +22,7 @@ vim.api.nvim_create_user_command("ColabAsk", function(command)
   end
 end, { range = 2, nargs = 1 })
 
----@command :ColabChat{!} {title} [[
+---@command :Chat{!} {title} [[
 --- State a new cody chat, with an optional {title}
 ---
 --- If {!} is passed, will reset the chat and start a new chat conversation.
@@ -37,7 +37,7 @@ vim.api.nvim_create_user_command("ColabChat", function(command)
 end, { nargs = "*", bang = true })
 
 ---@command :ColabToggle [[
---- Toggles the current Colab Chat window.
+--- Toggles the current Chat window.
 ---@command ]]
 vim.api.nvim_create_user_command("ColabToggle", function(_)
   chat_commands.toggle()

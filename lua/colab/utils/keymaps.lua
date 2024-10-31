@@ -1,3 +1,5 @@
+-- Source: https://github.com/sourcegraph/sg.nvim/blob/817f1f36e4c43f82e8e1cdfa4cf978dffa037255/lua/sg/keymaps.lua
+
 local M = {}
 
 local store = {}
@@ -65,7 +67,7 @@ M.help = function(bufnr)
     relative = "editor",
     style = "minimal",
     border = "rounded",
-    title = "Colab Chat Keymaps",
+    title = "Chat Keymaps",
     col = math.floor(vim.o.columns * 0.1),
     row = math.floor(vim.o.lines * 0.1),
     width = width,

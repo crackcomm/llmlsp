@@ -5,7 +5,17 @@ Source: https://github.com/crackcomm/llmlsp
 Maintainer: Łukasz Kurowski <crackcomm@gmail.com>
 
 Files: nvim/lua/colab/log.lua
-       nvim/lua/colab/vendored/{sg,cody}
+       nvim/lua/colab/chat/layout/base.lua
+       nvim/lua/colab/chat/layout/split.lua
+       nvim/lua/colab/chat/cody_history.lua
+       nvim/lua/colab/chat/cody_prompt.lua
+       nvim/lua/colab/chat/commands.lua
+       nvim/lua/colab/chat/keymaps.lua
+       nvim/lua/colab/chat/message.lua
+       nvim/lua/colab/chat/speaker.lua
+       nvim/lua/colab/chat/state.lua
+       nvim/lua/colab/utils/typewriter/*
+       nvim/lua/colab/utils/{init,keymaps,window}.lua
 Source: https://github.com/sourcegraph/sg.nvim/tree/817f1f36e4c43f82e8e1cdfa4cf978dffa037255/lua/sg
 Copyright: 2022-2023, Sourcegraph, Inc.
            2023, Łukasz Kurowski

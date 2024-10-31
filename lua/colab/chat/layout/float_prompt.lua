@@ -1,6 +1,6 @@
-local shared = require("colab.vendored.cody.shared")
-local keymaps = require("colab.vendored.sg.keymaps")
-local CodyPrompt = require("colab.vendored.cody.cody_prompt")
+local shared = require("colab.utils.window")
+local keymaps = require("colab.utils.keymaps")
+local CodyPrompt = require("colab.chat.cody_prompt")
 
 ---@class FloatPromptOpts : CodyPromptOpts
 ---@field on_submit function(bufnr: number, text: string[]): void

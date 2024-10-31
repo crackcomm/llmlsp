@@ -1,4 +1,4 @@
-local shared = require("colab.vendored.cody.shared")
+local shared = require("colab.utils.window")
 
 ---@class CodyHistoryOpts
 ---@field open function(self): Create a buf, win pair

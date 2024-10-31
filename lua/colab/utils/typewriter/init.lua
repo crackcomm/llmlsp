@@ -1,7 +1,9 @@
-local uv = vim.uv or vim.loop
-local log = require "colab.log"
+-- Source: https://github.com/sourcegraph/sg.nvim/blob/817f1f36e4c43f82e8e1cdfa4cf978dffa037255/lua/sg/components/typewriter.lua
 
-local ns = vim.api.nvim_create_namespace "cody-chat-messages"
+local uv = vim.uv or vim.loop
+local log = require("colab.log")
+
+local ns = vim.api.nvim_create_namespace("cody-chat-messages")
 
 --[[
 TODO:

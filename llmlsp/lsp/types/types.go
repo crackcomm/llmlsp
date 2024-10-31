@@ -14,10 +14,9 @@ type LLMLSPSettings struct {
 }
 
 type SourcegraphSettings struct {
-	URL              string   `json:"url"`
-	AccessToken      string   `json:"accessToken"`
-	RepoEmbeddings   []string `json:"repos"`
-	AnonymousUIDFile string   `json:"uidFile"`
+	URL            string   `json:"url"`
+	AccessToken    string   `json:"accessToken"`
+	RepoEmbeddings []string `json:"repos"`
 }
 
 type ConfigurationSettings struct {

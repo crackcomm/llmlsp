@@ -1,26 +1,6 @@
-local util = require("colab.vendored.sg.utils")
+local util = require("colab.utils")
 
 local tasks = {}
-
-local function find_indentation(lines)
-  -- find indentation of first non-empty line
-  local indent = 0
-  for _, line in ipairs(lines) do
-    if line:match("%S") then
-      indent = line:match("^%s*"):len()
-      break
-    end
-  end
-  return indent
-end
-
-local function indent_code(lines, indent)
-  local indented = {}
-  for _, line in ipairs(lines) do
-    table.insert(indented, string.rep(" ", indent) .. line)
-  end
-  return indented
-end
 
 --- Ask an LLM to perform a task on the selected code.
 ---@param bufnr number
@@ -36,7 +16,7 @@ tasks.do_task = function(bufnr, start_line, end_line, message, callback)
   prompt = prompt .. "\nReply only with code, nothing else. Enclose it in a markdown style block.\n"
   prompt = prompt .. table.concat(formatted, "\n")
 
-  require("colab.chat.rpc").execute.code_question(prompt, function(msg)
+  require("colab.client").execute.code_question(prompt, function(msg)
     if msg == nil then
       return
     end
@@ -52,9 +32,8 @@ tasks.do_task = function(bufnr, start_line, end_line, message, callback)
     table.remove(text)
     table.remove(text, 1)
 
-    local indent = find_indentation(selection)
-    text = indent_code(text, indent)
-    callback(text)
+    local indent = util.find_indentation(selection)
+    callback(util.indent_code(text, indent))
   end)
 end
 

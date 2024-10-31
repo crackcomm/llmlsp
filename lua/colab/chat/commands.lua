@@ -2,16 +2,15 @@
 
 ---@tag colab.chat.lua-commands
 
-local log = require("colab.log")
-local tasks = require("colab.tasks")
-local util = require("colab.vendored.sg.utils")
+local tasks = require("colab.client.tasks")
+local util = require("colab.utils")
 
-local CodyBase = require("colab.vendored.cody.layout.base")
-local CodySplit = require("colab.vendored.cody.layout.split")
+local CodyBase = require("colab.chat.layout.base")
+local CodySplit = require("colab.chat.layout.split")
 local FloatPrompt = require("colab.chat.layout.float_prompt")
-local Message = require("colab.vendored.cody.message")
-local Speaker = require("colab.vendored.cody.speaker")
-local State = require("colab.vendored.cody.state")
+local Message = require("colab.chat.message")
+local Speaker = require("colab.chat.types").Speaker
+local State = require("colab.chat.state")
 
 local commands = {}
 
@@ -125,7 +124,7 @@ end
 --- Can be set to a keymap by:
 --- <code=lua>
 ---   vim.keymap.set('n', '<leader>ch', function()
----     require("colab.vendored.cody.commands").focus_history()
+---     require("colab.chat.commands").focus_history()
 ---   end)
 --- </code>
 commands.focus_history = function()
@@ -147,7 +146,7 @@ end
 --- Can be set to a keymap by:
 --- <code=lua>
 ---   vim.keymap.set('n', '<leader>cp', function()
----     require("colab.vendored.cody.commands").focus_prompt()
+---     require("colab.chat.commands").focus_prompt()
 ---   end)
 --- </code>
 commands.focus_prompt = function()
