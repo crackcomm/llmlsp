@@ -18,8 +18,10 @@ func LSPHandlerFunc[T any](fn LSPHandler[T]) router.HandlerFunc {
 	return jsonrpc2.HandlerWithError(
 		func(ctx context.Context, conn *jsonrpc2.Conn, req *jsonrpc2.Request) (any, error) {
 			var params T
-			if err := json.Unmarshal(*req.Params, &params); err != nil {
-				return nil, err
+			if req.Params != nil {
+				if err := json.Unmarshal(*req.Params, &params); err != nil {
+					return nil, err
+				}
 			}
 
 			return fn(ctx, conn, req, params)
