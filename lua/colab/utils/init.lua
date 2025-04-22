@@ -63,21 +63,20 @@ utils.tbl_trim = function(tbl)
   return vim.split(vim.trim(table.concat(tbl, "\n")), "\n")
 end
 
---- Get the current selection
---- Resets the visual selection
----@return table
+--- Get the current selection.
+--- Resets the visual selection.
+---@return {start_line: number, start_char: number, end_line: number, end_char: number} The selection details.
 utils.get_selection = function()
   utils.execute_keystrokes("<ESC>")
 
   local start_pos = vim.fn.getpos("'<")
   local end_pos = vim.fn.getpos("'>")
 
-  local start_line = start_pos[2] - 1 -- Convert to 0-based indexing for lines
-  local start_char = start_pos[3] - 1 -- Convert to 0-based indexing for characters
-  local end_line = end_pos[2] - 1 -- Convert to 0-based indexing
-  local end_char = end_pos[3] -- End character is 1-based
+  local start_line = start_pos[2] - 1 -- Convert to 0-based indexing for lines.
+  local start_char = start_pos[3] - 1 -- Convert to 0-based indexing for characters.
+  local end_line = end_pos[2]
+  local end_char = end_pos[3]
 
   return { start_line = start_line, start_char = start_char, end_line = end_line, end_char = end_char }
 end
-
 return utils
