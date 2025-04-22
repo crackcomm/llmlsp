@@ -66,7 +66,7 @@ function State:append(message)
   -- If the message is from the user, then we want to type it out very quickly
   local interval
   if message.speaker == Speaker.user then
-    interval = 1
+    interval = 0
   end
 
   table.insert(self.messages, {
@@ -172,6 +172,14 @@ function State:render(bufnr, win)
 
   for _, message_state in ipairs(self.messages) do
     render_one_message(message_state)
+  end
+end
+
+-- Fast forward the typewriter for the last message
+function State:fast_forward()
+  local last_message = self:last_response()
+  if last_message and last_message.typewriter then
+    last_message.typewriter.fast_forward = true
   end
 end
 

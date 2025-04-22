@@ -33,6 +33,8 @@ end
 ---@field index number
 ---@field text string
 ---@field interval number: The average ms between characters
+---@field jitter number: The jitter multiplier for the interval
+---@field fast_forward boolean: Whether to skip the typewriter effect
 local Typewriter = {}
 
 Typewriter.ns = ns
@@ -46,7 +48,9 @@ Typewriter.init = function(opts)
     timer = nil,
     index = 0,
     text = "",
-    interval = opts.interval or 10,
+    interval = opts.interval or 100,
+    jitter = opts.jitter or 0,
+    fast_forward = false,
   }, { __index = Typewriter })
 end
 
@@ -54,11 +58,18 @@ function Typewriter:set_text(text)
   self.text = text
 end
 
+function Typewriter:fast_forward_render(bufnr, mark)
+  local details = mark:details()
+  local start_pos = mark:start_pos(details)
+  local end_pos = mark:end_pos(details)
+  vim.api.nvim_buf_set_text(bufnr, start_pos.row, start_pos.col, end_pos.row, end_pos.col, vim.split(self.text, "\n"))
+end
+
 --- Render a typewriter message
 ---@param bufnr number
 ---@param win number
 ---@param mark CodyMarkWrapper
----@param opts { interval: number? }?
+---@param opts { interval: number?, jitter: number? }
 function Typewriter:render(bufnr, win, mark, opts)
   opts = opts or {}
 
@@ -69,11 +80,8 @@ function Typewriter:render(bufnr, win, mark, opts)
   end
 
   local interval = opts.interval or self.interval
-  if interval <= 0 then
-    local details = mark:details()
-    local start_pos = mark:start_pos(details)
-    local end_pos = mark:end_pos(details)
-    vim.api.nvim_buf_set_text(bufnr, start_pos.row, start_pos.col, end_pos.row, end_pos.col, vim.split(self.text, "\n"))
+  if interval <= 0 or self.fast_forward then
+    self:fast_forward_render(bufnr, mark)
     return
   end
 
@@ -92,8 +100,21 @@ function Typewriter:render(bufnr, win, mark, opts)
       return
     end
 
-    local interval_jitter = math.floor(interval * 0.8)
-    self.timer:set_repeat(interval + math.random(-1 * interval_jitter, interval_jitter))
+    -- Fast forward was pressed. We want to skip the typewriter effect
+    -- and just set the text immediately.
+    if self.fast_forward then
+      self:stop()
+      self:fast_forward_render(bufnr, mark)
+      return
+    end
+
+    local repeat_interval = interval
+    if self.jitter > 0 then
+      local interval_jitter = math.floor(interval * self.jitter)
+      repeat_interval = interval + math.random(-1 * interval_jitter, interval_jitter)
+    end
+
+    self.timer:set_repeat(repeat_interval)
 
     local details = mark:details()
     local start_pos = mark:start_pos(details)

@@ -112,6 +112,12 @@ function CodySplit:set_keymaps()
   keymaps.map(self.prompt.bufnr, "n", "?", "[chat] show keymaps", function()
     keymaps.help(self.prompt.bufnr)
   end)
+
+  keymaps.map(self.prompt.bufnr, "n", "<c-n>", "[chat] fast forward typewriter", function()
+    if self.state then
+      self.state:fast_forward()
+    end
+  end)
 end
 
 ---Returns the id of the message where the completion will go
